@@ -44,6 +44,41 @@ var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
+
+// modal was triggered
+$("#task-form-modal").on("show.bs.modal", function() {
+  // clear values
+  $("#modalTaskDescription, #modalDueDate").val("");
+});
+
+// modal is fully visible
+$("#task-form-modal").on("shown.bs.modal", function() {
+  // highlight textarea
+  $("#modalTaskDescription").trigger("focus");
+});
+
+// save button in modal was clicked
+$("#task-form-modal .btn-primary").click(function() {
+  // get form values
+  var taskText = $("#modalTaskDescription").val();
+  var taskDate = $("#modalDueDate").val();
+
+  if (taskText && taskDate) {
+    createTask(taskText, taskDate, "toDo");
+
+    // close modal
+    $("#task-form-modal").modal("hide");
+
+    // save in tasks array
+    tasks.toDo.push({
+      text: taskText,
+      date: taskDate
+    });
+
+    saveTasks();
+  }
+});
+
 // trigger changing list group to paragraph
 $(".list-group").on("click", "p", function() {
   var text = $(this)
@@ -59,8 +94,7 @@ $(".list-group").on("click", "p", function() {
 $(".list-group").on("blur", "textarea", function () {
   // get the textarea's current value/text
   var text = $(this)
-    .val()
-    .trim();
+    .val();
   // get the parent ul's id attribute
   var status = $(this)
     .closest(".list-group")
@@ -70,6 +104,11 @@ $(".list-group").on("blur", "textarea", function () {
   var index = $(this)
     .closest(".list-group-item")
     .index();
+
+  // update task in array and re-save
+  task[status][index].text = text;
+  saveTasks();
+
   // recreate p element
   var taskP = $("<p>")
     .addClass("m-1")
@@ -111,7 +150,7 @@ $(".list-group").on("blur",  "input[type='text']", function() {
       .closest(".list-group-item")
       .index();
     // update task in array and re-save to localStorage
-    tasks[status][index].date;
+    tasks[status][index].date = date;
     saveTasks();
     // recreate span element with bootstrap classes
     var taskSpan = $("<span>")
@@ -119,40 +158,6 @@ $(".list-group").on("blur",  "input[type='text']", function() {
       .text(date);
     // replace input with span element
     $(this).replaceWith(taskSpan);
-});
-
-// modal was triggered
-$("#task-form-modal").on("show.bs.modal", function() {
-  // clear values
-  $("#modalTaskDescription, #modalDueDate").val("");
-});
-
-// modal is fully visible
-$("#task-form-modal").on("shown.bs.modal", function() {
-  // highlight textarea
-  $("#modalTaskDescription").trigger("focus");
-});
-
-// save button in modal was clicked
-$("#task-form-modal .btn-primary").click(function() {
-  // get form values
-  var taskText = $("#modalTaskDescription").val();
-  var taskDate = $("#modalDueDate").val();
-
-  if (taskText && taskDate) {
-    createTask(taskText, taskDate, "toDo");
-
-    // close modal
-    $("#task-form-modal").modal("hide");
-
-    // save in tasks array
-    tasks.toDo.push({
-      text: taskText,
-      date: taskDate
-    });
-
-    saveTasks();
-  }
 });
 
 // remove all tasks
